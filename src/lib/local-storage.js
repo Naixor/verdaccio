@@ -1,7 +1,7 @@
 // @flow
 
 /* eslint prefer-rest-params: 0 */
-
+import 'babel-polyfill';
 import Crypto from 'crypto';
 import assert from 'assert';
 import fs from 'fs';

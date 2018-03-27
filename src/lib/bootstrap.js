@@ -1,3 +1,4 @@
+import 'babel-polyfill';
 import {assign, isObject, isFunction} from 'lodash';
 import Path from 'path';
 import URL from 'url';
@@ -5,6 +6,7 @@ import fs from 'fs';
 import http from'http';
 import https from 'https';
 import constants from 'constants';
+import mongoose from 'mongoose';
 
 const server = require('../api/index');
 const Utils = require('./utils');
@@ -71,6 +73,15 @@ function startVerdaccio(config, cliListen, configPath, pkgVersion, pkgName, call
 
   const app = server(config);
   const addresses = getListListenAddresses(cliListen, config.listen);
+
+  console.log(config);
+  if (config.mongodb) {
+    const connectString = config.mongodb.connectString;
+    if (connectString) {
+      mongoose.Promise = global.Promise;
+      mongoose.connect(`${connectString}`, {useMongoClient: true});
+    }
+  }
 
   addresses.forEach(function(addr) {
     let webServer;

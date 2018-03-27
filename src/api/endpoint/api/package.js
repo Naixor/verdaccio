@@ -5,6 +5,9 @@ const createError = require('http-errors');
 
 const Middleware = require('../../web/middleware');
 const Utils = require('../../../lib/utils');
+import { increasePackageDownloadByVersion } from '../../../dao/PackageExtInfo/packageExtInfoDao';
+import { PackageExtInfoModel } from '../../../dao/PackageExtInfo/packageExtInfoModel';
+import { checkPackageIsPrivate } from '../../../utils/package';
 
 module.exports = function(route, auth, storage, config) {
   const can = Middleware.allow(auth);
@@ -47,7 +50,15 @@ module.exports = function(route, auth, storage, config) {
   });
 
   route.get('/:package/-/:filename', can('access'), function(req, res) {
-    const stream = storage.get_tarball(req.params.package, req.params.filename);
+    const packagename = req.params.package;
+    const filename = req.params.filename;
+    const version = (filename || '').replace(`${packagename}-`, '').replace(/\.\w+$/, '');
+
+    if (checkPackageIsPrivate(packagename) && version && /^(\d+\.)+\d+$/.test(version)) {
+      increasePackageDownloadByVersion(packagename, version);
+    }
+
+    const stream = storage.get_tarball(packagename, filename);
     stream.on('content-length', function(content) {
       res.header('Content-Length', content);
     });

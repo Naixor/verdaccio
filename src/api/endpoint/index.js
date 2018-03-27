@@ -1,5 +1,6 @@
 'use strict';
 
+import 'babel-polyfill';
 const express = require('express');
 const bodyParser = require('body-parser');
 const Middleware = require('../web/middleware');

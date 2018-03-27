@@ -43,6 +43,9 @@ packages:
     # if package is not available locally, proxy requests to 'npmjs' registry
     proxy: npmjs
 
+mongodb:
+  connectString: mongodb://localhost:27017/bnpm
+
 # log settings
 logs:
   - {type: stdout, format: pretty, level: http}

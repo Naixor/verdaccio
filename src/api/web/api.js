@@ -14,6 +14,8 @@ const async = require('async');
 const HTTPError = require('http-errors');
 const Utils = require('../../lib/utils');
 const {generateGravatarUrl} = require('../../utils/user');
+import { getPackageAllVersionExtInfo } from '../../dao/PackageExtInfo/packageExtInfoDao';
+import { checkPackageIsPrivate } from '../../utils/package';
 
 /*
  This file include all verdaccio only API(Web UI), for npm API please see ../endpoint/
@@ -196,6 +198,22 @@ module.exports = function(config, auth, storage) {
       },
     });
   });
+
+  /**
+   * 返回package全部版本的下载信息
+   */
+  route.get('/sidebar/extinfo/(@:scope/)?:package/', can('access'), function(req, res, next) {
+    let pkgName = req.params.package;
+    if (req.params.scope) {
+      pkgName = `@${req.params.scope}/${packageName}`;
+    }
+    if (!checkPackageIsPrivate(pkgName)) {
+      return next( createError[403]('package is undefined or is not private') )
+    }
+    getPackageAllVersionExtInfo(pkgName).then(function(extInfo) {
+      res.end(JSON.stringify(extInfo));
+    });
+  })
 
   // What are you looking for? logout? client side will remove token when user click logout,
   // or it will auto expire after 24 hours.
