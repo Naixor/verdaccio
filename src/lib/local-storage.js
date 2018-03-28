@@ -17,7 +17,7 @@ import {
   fileExist, noSuchFile, DEFAULT_REVISION, pkgFileName,
 } from './storage-utils';
 import {loadPlugin} from '../lib/plugin-loader';
-import LocalDatabase from '@verdaccio/local-storage';
+import LocalDatabase from 'local-storage';
 import {UploadTarball, ReadTarball} from '@verdaccio/streams';
 import type {
   IStorage,
@@ -32,7 +32,7 @@ import type {
 import type {
   ILocalData,
   IPackageStorage,
-} from '@verdaccio/local-storage';
+} from 'local-storage';
 
 /**
  * Implements Storage interface (same for storage.js, local-storage.js, up-storage.js).
