@@ -1,4 +1,8 @@
 'use strict';
+import { checkPackageIsPrivate } from '../../../utils/package';
+import { readdir, readdirSync, statSync, existsSync } from 'fs';
+import { resolve } from 'path';
+import { scan } from '../../../../node_modules/js-yaml/lib/js-yaml';
 
 module.exports = function(route, auth, storage) {
   // searching packages
@@ -96,4 +100,52 @@ module.exports = function(route, auth, storage) {
       check_finish();
     });
   });
+
+  route.get('/-/allprivate', function(req, res) {
+    const config_file_path = storage.config.self_path;
+    const storage_dirname = storage.config.storage;
+    const storage_path = resolve(config_file_path.replace(/\/[^/]+$/, ''), storage_dirname);
+
+    readdir(storage_path, (err, files) => {
+      if (err) {
+        res.status(500);
+        res.end();
+        return;
+      }
+      res.status(200);
+      res.write(JSON.stringify(scanDir(storage_path, files.map((file) => resolve(storage_path, file)))));
+      res.end();
+    })
+  })
 };
+
+function scanDir(storage_path, files) {
+  let package_names = [];
+  files.forEach((file) => {
+    if (statSync(file).isDirectory()) {
+      if (checkIsScopeDir(file)) {
+        const package_name = getPackageNameFromPath(storage_path, file);
+        if (package_name.indexOf('@lark') === 0 || checkPackageIsPrivate(package_name)) {
+          package_names.push(package_name);
+        }
+      } else {
+        const subfiles = readdirSync(file);
+        package_names = package_names.concat(scanDir(storage_path, subfiles.map((subfile) => resolve(file, subfile))));
+      }
+    }
+  });
+  return package_names;
+}
+
+function checkIsScopeDir(dir_path) {
+  return existsSync(resolve(dir_path, './package.json'));
+}
+
+function getPackageNameFromPath(storage_path, file_path) {
+  const len = storage_path.length;
+  let parent_path = storage_path;
+  if (len > 0 && storage_path[len - 1] !== '/') {
+    parent_path += '/';
+  }
+  return file_path.replace(parent_path, '');
+}
