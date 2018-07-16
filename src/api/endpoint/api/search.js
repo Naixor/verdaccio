@@ -125,7 +125,7 @@ function scanDir(storage_path, files) {
     if (statSync(file).isDirectory()) {
       if (checkIsScopeDir(file)) {
         const package_name = getPackageNameFromPath(storage_path, file);
-        if (package_name.indexOf('@lark') === 0 || checkPackageIsPrivate(package_name)) {
+        if (checkPackageIsPrivate(package_name)) {
           package_names.push(package_name);
         }
       } else {
