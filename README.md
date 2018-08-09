@@ -1,5 +1,6 @@
 <p align="center"><img src="https://github.com/verdaccio/verdaccio/raw/master/assets/bitmap/verdaccio%402x.png"></p>
 
+aaa
 ### A lightweight private npm proxy registry
 
 
